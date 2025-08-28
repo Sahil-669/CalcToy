@@ -5,6 +5,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.calctoy.R
+import androidx.compose.ui.text.font.Font
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -31,4 +33,13 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+
+val Tirra = FontFamily(
+    Font(R.font.tirra_black, FontWeight.Black),
+    Font(R.font.tirra_bold, FontWeight.Bold),
+    Font(R.font.tirra_extrabold, FontWeight.ExtraBold),
+    Font(R.font.tirra_medium, FontWeight.Medium),
+    Font(R.font.tirra_regular, FontWeight.Normal),
+    Font(R.font.tirra_semibold, FontWeight.SemiBold)
 )

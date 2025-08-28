@@ -3,6 +3,8 @@ package com.example.calctoy.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.calctoy.ui.theme.Tirra
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.text.DecimalFormat
 
@@ -38,14 +41,17 @@ fun CalculatorScreen() {
         ) {
             Text(
                 text = expression,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 60.sp,
+                fontFamily = Tirra,
+                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
                 text = result,
-                fontSize = 24.sp,
+                fontSize = 30.sp,
+                fontFamily = Tirra,
+                fontWeight = FontWeight.Medium,
                 color = Color.Gray,
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth()
@@ -102,13 +108,16 @@ fun CalculatorButton(
     onClick: () -> Unit
 ) {
     Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.medium)
-            .clickable { onClick() }
-            .padding(8.dp)
+        contentAlignment = Alignment.Center
+
     ) {
-        Text(text = symbol, fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Bold)
+        FloatingActionButton(
+            onClick = {onClick()},
+            modifier = Modifier.size(85.dp),
+            shape = CircleShape
+            ) {
+            Text(text = symbol, fontFamily = Tirra, fontSize = 30.sp, color = Color.Black, fontWeight = FontWeight.ExtraBold)
+        }
     }
 }
 
