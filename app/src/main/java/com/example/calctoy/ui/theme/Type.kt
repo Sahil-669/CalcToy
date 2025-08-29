@@ -35,11 +35,12 @@ val Typography = Typography(
     */
 )
 
-val Tirra = FontFamily(
-    Font(R.font.tirra_black, FontWeight.Black),
-    Font(R.font.tirra_bold, FontWeight.Bold),
-    Font(R.font.tirra_extrabold, FontWeight.ExtraBold),
-    Font(R.font.tirra_medium, FontWeight.Medium),
-    Font(R.font.tirra_regular, FontWeight.Normal),
-    Font(R.font.tirra_semibold, FontWeight.SemiBold)
+
+
+val Lato = FontFamily(
+    Font(R.font.lato_black, FontWeight.Black),
+    Font(R.font.lato_bold, FontWeight.Bold),
+    Font(R.font.lato_regular, FontWeight.Normal),
+    Font(R.font.lato_light, FontWeight.Light),
+    Font(R.font.lato_thin, FontWeight.Thin)
 )
