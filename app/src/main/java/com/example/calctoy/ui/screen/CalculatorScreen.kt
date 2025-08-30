@@ -1,6 +1,7 @@
 package com.example.calctoy.ui.screen
 
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.layout.Layout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.example.calctoy.ui.theme.Lato
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.text.DecimalFormat
+import kotlin.math.min
 import kotlin.text.iterator
 
 
@@ -171,17 +173,32 @@ fun autoResizeText(
 ) {
     var numberFontSize by remember { mutableStateOf(maxNumberFontSize) }
     var operatorFontSize by remember { mutableStateOf(maxOperatorFontSize) }
+    var prevLength by remember { mutableIntStateOf(expression.length) }
+    val animatedNumberFontSize by animateFloatAsState(targetValue = numberFontSize.value)
+    val animatedOperatorFontSize by animateFloatAsState(targetValue = operatorFontSize.value)
+
+    LaunchedEffect(expression.length) {
+        if (expression.isEmpty()) {
+            numberFontSize = maxNumberFontSize
+            operatorFontSize = maxOperatorFontSize
+        }
+        else if (expression.length < prevLength) {
+            numberFontSize = min(maxNumberFontSize.value, numberFontSize.value * 1.1f).sp
+            operatorFontSize = min(maxOperatorFontSize.value, operatorFontSize.value * 1.1f).sp
+        }
+        prevLength = expression.length
+    }
 
     Box(modifier = modifier.fillMaxWidth()) {
         Text(
             text = buildAnnotatedString {
                 val numberStyle = SpanStyle(
-                    fontSize = numberFontSize,
+                    fontSize = animatedNumberFontSize.sp,
                     fontFamily = Lato,
                     fontWeight = FontWeight.Bold
                 )
                 val operatorStyle = SpanStyle(
-                    fontSize = operatorFontSize,
+                    fontSize = animatedOperatorFontSize.sp,
                     fontFamily = Lato,
                     fontWeight = FontWeight.Bold,
                     baselineShift = BaselineShift(0.5f)
@@ -198,22 +215,14 @@ fun autoResizeText(
                 .fillMaxWidth(),
             textAlign = TextAlign.End,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            onTextLayout = { r: TextLayoutResult ->
-                if (r.multiParagraph.didExceedMaxLines && numberFontSize > minNumberFontSize && operatorFontSize > minOperatorFontSize) {
-                    numberFontSize *= .9f
-                    operatorFontSize *= .9f
-                }
-                else if (expression.length < 10) {
-                    numberFontSize = maxNumberFontSize
-                    operatorFontSize = maxOperatorFontSize
+            softWrap = false,
+            overflow = TextOverflow.Clip,
+            onTextLayout = { result ->
+                if (result.didOverflowWidth && numberFontSize > minNumberFontSize && operatorFontSize > minOperatorFontSize) {
+                    numberFontSize *= .93f
+                    operatorFontSize *= .93f
                 }
             }
         )
     }
 }
-
-
-
-
-
