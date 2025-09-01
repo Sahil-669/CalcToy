@@ -6,6 +6,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,8 +24,14 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calctoy.ui.theme.Lato
+import com.example.calctoy.ui.theme.acButton
+import com.example.calctoy.ui.theme.equalButton
+import com.example.calctoy.ui.theme.numberButton
+import com.example.calctoy.ui.theme.operatorButton
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.text.DecimalFormat
+import kotlin.math.exp
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.text.iterator
 
@@ -33,7 +40,6 @@ import kotlin.text.iterator
 fun CalculatorScreen() {
     var expression by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -81,11 +87,18 @@ fun CalculatorScreen() {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     row.forEach { symbol ->
+                         val buttonColor = when (symbol) {
+                            "AC" -> MaterialTheme.colorScheme.acButton
+                            "=" -> MaterialTheme.colorScheme.equalButton
+                            "+", "-", "x", "/", "%", "( )" -> MaterialTheme.colorScheme.operatorButton
+                            else -> MaterialTheme.colorScheme.numberButton
+                        }
                         CalculatorButton(
                             symbol = symbol,
                             modifier = Modifier
                                 .weight(1f)
-                                .aspectRatio(1f)
+                                .aspectRatio(1f),
+                            backgroundColor = buttonColor
                         ) {
                             when (symbol) {
                                 "=" -> result = evaluateExpression(expression)
@@ -94,7 +107,9 @@ fun CalculatorScreen() {
                                 }
                                 "⌫" -> {
                                     if (expression.isNotEmpty())
-                                    expression = expression.dropLast(1)}
+                                    expression = expression.dropLast(1)
+                                }
+
                                 "( )" -> expression = handleParentheses(expression)
                                 else -> {
                                     expression += symbol}
@@ -110,6 +125,7 @@ fun CalculatorScreen() {
 @Composable
 fun CalculatorButton(
     symbol: String,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -119,9 +135,10 @@ fun CalculatorButton(
         FloatingActionButton(
             onClick = {onClick()},
             modifier = Modifier.size(85.dp),
-            shape = CircleShape
+            shape = CircleShape,
+            containerColor = backgroundColor
             ) {
-            Text(text = symbol, fontFamily = Lato, fontSize = 30.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+            Text(text = symbol, fontFamily = Lato, fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Normal)
         }
     }
 }
@@ -176,7 +193,6 @@ fun autoResizeText(
     var prevLength by remember { mutableIntStateOf(expression.length) }
     val animatedNumberFontSize by animateFloatAsState(targetValue = numberFontSize.value)
     val animatedOperatorFontSize by animateFloatAsState(targetValue = operatorFontSize.value)
-
     LaunchedEffect(expression.length) {
         if (expression.isEmpty()) {
             numberFontSize = maxNumberFontSize
@@ -188,7 +204,6 @@ fun autoResizeText(
         }
         prevLength = expression.length
     }
-
     Box(modifier = modifier.fillMaxWidth()) {
         Text(
             text = buildAnnotatedString {
@@ -219,8 +234,8 @@ fun autoResizeText(
             overflow = TextOverflow.Clip,
             onTextLayout = { result ->
                 if (result.didOverflowWidth && numberFontSize > minNumberFontSize && operatorFontSize > minOperatorFontSize) {
-                    numberFontSize *= .93f
-                    operatorFontSize *= .93f
+                    numberFontSize *= .95f
+                    operatorFontSize *= .95f
                 }
             }
         )
