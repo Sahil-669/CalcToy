@@ -35,6 +35,17 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+private val RetroColorScheme = darkColorScheme(
+    primary = RetroButton,
+    secondary = RetroOperator,
+    tertiary = RetroEqual,
+    background = RetroBackground,
+    surface = RetroBackground,
+    onPrimary = RetroButtonText,
+    onSecondary = RetroButtonText,
+    onTertiary = Color.White
+)
+
 val ColorScheme.acButton: Color
     @Composable get() = if (isSystemInDarkTheme()) DarkACButton else LightACButton
 
@@ -50,10 +61,12 @@ val ColorScheme.numberButton: Color
 @Composable
 fun CalcToyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    retroTheme: Boolean = false,
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
+        retroTheme -> RetroColorScheme
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

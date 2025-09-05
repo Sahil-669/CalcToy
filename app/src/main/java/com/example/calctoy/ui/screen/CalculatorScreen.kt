@@ -2,6 +2,7 @@ package com.example.calctoy.ui.screen
 
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.ui.layout.Layout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +25,14 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calctoy.ui.theme.Lato
+import com.example.calctoy.ui.theme.RetroBackground
+import com.example.calctoy.ui.theme.RetroButton
+import com.example.calctoy.ui.theme.RetroButtonText
+import com.example.calctoy.ui.theme.RetroEqual
+import com.example.calctoy.ui.theme.RetroOperator
+import com.example.calctoy.ui.theme.RetroResult
+import com.example.calctoy.ui.theme.RetroSpecial
+import com.example.calctoy.ui.theme.RetroText
 import com.example.calctoy.ui.theme.acButton
 import com.example.calctoy.ui.theme.equalButton
 import com.example.calctoy.ui.theme.numberButton
@@ -37,13 +46,15 @@ import kotlin.text.iterator
 
 
 @Composable
-fun CalculatorScreen() {
+fun CalculatorScreen(retroTheme: Boolean = false) {
     var expression by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(if (retroTheme) RetroBackground else MaterialTheme.colorScheme.background)
             .padding(16.dp),
+
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
@@ -56,21 +67,23 @@ fun CalculatorScreen() {
         ) {
             autoResizeText(
                 expression = expression,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                numberColor = if (retroTheme) RetroText else MaterialTheme.colorScheme.onBackground,
+                operatorColor = if (retroTheme) RetroOperator else MaterialTheme.colorScheme.primary
             )
             Text(
                 text = result,
                 fontSize = 30.sp,
                 fontFamily = Lato,
                 fontWeight = FontWeight.Medium,
-                color = Color.Gray,
+                color = if (retroTheme) RetroResult else Color.Gray,
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         val buttons = listOf(
-            listOf("AC", "( )", "%", "/"),
+            listOf("AC", "(  )", "%", "/"),
             listOf("7", "8", "9", "x"),
             listOf("4", "5", "6", "-"),
             listOf("1", "2", "3", "+"),
@@ -87,12 +100,21 @@ fun CalculatorScreen() {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     row.forEach { symbol ->
-                         val buttonColor = when (symbol) {
+                         val buttonColor = if (retroTheme) {
+                             when (symbol) {
+                                 "AC" -> RetroSpecial
+                                 "=" -> RetroEqual
+                                 "+", "-", "x", "/", "%", "(  )" -> RetroOperator
+                                 else -> RetroButton
+                             }
+                         } else {
+                            when (symbol) {
                             "AC" -> MaterialTheme.colorScheme.acButton
                             "=" -> MaterialTheme.colorScheme.equalButton
-                            "+", "-", "x", "/", "%", "( )" -> MaterialTheme.colorScheme.operatorButton
+                            "+", "-", "x", "/", "%", "(  )" -> MaterialTheme.colorScheme.operatorButton
                             else -> MaterialTheme.colorScheme.numberButton
                         }
+                         }
                         CalculatorButton(
                             symbol = symbol,
                             modifier = Modifier
@@ -126,6 +148,7 @@ fun CalculatorScreen() {
 @Composable
 fun CalculatorButton(
     symbol: String,
+    retroTheme: Boolean = false,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
@@ -140,7 +163,11 @@ fun CalculatorButton(
             shape = CircleShape,
             containerColor = backgroundColor
             ) {
-            Text(text = symbol, fontFamily = Lato, fontSize = 30.sp, color = Color.Black, fontWeight = FontWeight.Normal)
+            Text(text = symbol,
+                fontFamily = Lato,
+                fontSize = 30.sp,
+                color = if (retroTheme) RetroButtonText else Color.Black,
+                fontWeight = FontWeight.Normal)
         }
     }
 }
@@ -185,6 +212,8 @@ private fun handleParentheses(expr: String): String {
 fun autoResizeText(
     expression: String,
     modifier: Modifier = Modifier,
+    numberColor: Color = Color.Black,
+    operatorColor: Color = Color.DarkGray,
     maxNumberFontSize: TextUnit = 60.sp,
     minNumberFontSize: TextUnit = 20.sp,
     maxOperatorFontSize: TextUnit = 40.sp,
@@ -212,13 +241,15 @@ fun autoResizeText(
                 val numberStyle = SpanStyle(
                     fontSize = animatedNumberFontSize.sp,
                     fontFamily = Lato,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = numberColor
                 )
                 val operatorStyle = SpanStyle(
                     fontSize = animatedOperatorFontSize.sp,
                     fontFamily = Lato,
                     fontWeight = FontWeight.Bold,
-                    baselineShift = BaselineShift(0.5f)
+                    baselineShift = BaselineShift(0.5f),
+                    color = operatorColor
                 )
                 for (ch in expression) {
                     if (ch in "+-x/") {
