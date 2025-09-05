@@ -13,17 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-val LightACButton = Color(0xFFFF0000)
-val LightEqualButton = Color(0xFF4ECDC4)
-val LightOperatorButton = Color(0xFFFFC75F)
-val LightNumberButton = Color(0xFFE0E0E0)
-
-
-val DarkACButton = Color(0xFFEF5350)
-val DarkEqualButton = Color(0xFF26A69A)
-val DarkOperatorButton = Color(0xFFFFB74D)
-val DarkNumberButton = Color(0xFF424242)
-
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
@@ -61,7 +50,6 @@ val ColorScheme.numberButton: Color
 @Composable
 fun CalcToyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {

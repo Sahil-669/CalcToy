@@ -97,7 +97,8 @@ fun CalculatorScreen() {
                             symbol = symbol,
                             modifier = Modifier
                                 .weight(1f)
-                                .aspectRatio(1f),
+                                .aspectRatio(1f)
+                                .fillMaxHeight(),
                             backgroundColor = buttonColor
                         ) {
                             when (symbol) {
@@ -130,15 +131,16 @@ fun CalculatorButton(
     onClick: () -> Unit
 ) {
     Box(
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         FloatingActionButton(
             onClick = {onClick()},
-            modifier = Modifier.size(85.dp),
+            modifier = Modifier.fillMaxSize(),
             shape = CircleShape,
             containerColor = backgroundColor
             ) {
-            Text(text = symbol, fontFamily = Lato, fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Normal)
+            Text(text = symbol, fontFamily = Lato, fontSize = 30.sp, color = Color.Black, fontWeight = FontWeight.Normal)
         }
     }
 }
