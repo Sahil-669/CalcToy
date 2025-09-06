@@ -77,26 +77,26 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
             verticalArrangement = Arrangement.Center
         ) {
             autoResizeText(
-                expression = expression,
-                modifier = Modifier.fillMaxWidth(),
-                numberColor = if (retroTheme) RetroText else MaterialTheme.colorScheme.onBackground,
-                operatorColor = if (retroTheme) RetroOperator else MaterialTheme.colorScheme.primary
+                    expression = expression,
+                    modifier = Modifier.fillMaxWidth(),
+                    numberColor = if (retroTheme) RetroText else MaterialTheme.colorScheme.onBackground,
+                    operatorColor = if (retroTheme) RetroOperator else MaterialTheme.colorScheme.primary
             )
-            if (result.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+            Box (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(38.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
                 Text(
-                    text = result,
-                    fontSize = 30.sp,
-                    fontFamily = Lato,
-                    fontWeight = FontWeight.Medium,
-                    color = if (retroTheme) RetroResult else Color.Gray,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.fillMaxWidth()
+                        text = result,
+                        fontSize = 30.sp,
+                        fontFamily = Lato,
+                        fontWeight = FontWeight.Medium,
+                        color = if (retroTheme) RetroResult else Color.Gray,
+                        textAlign = TextAlign.End
                 )
-            } else {
-                Spacer(modifier = Modifier.height(38.dp))
             }
-
         }
 
         val buttons = listOf(
