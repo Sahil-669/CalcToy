@@ -24,7 +24,6 @@ val DarkNumberButton = Color(0xFFEDE8D0)
 val DarkModernPad = Color(0xFF1B1B1B)
 
 val RetroBackground = Color(0xFF1B1B1B)
-val RetroScreen = Color(0xFFCADC9F)
 val RetroText = Color(0xFFEAEAEA)
 val RetroResult = Color(0xFF9EFF9E)
 val RetroButton = Color(0xFFC0C0C0)

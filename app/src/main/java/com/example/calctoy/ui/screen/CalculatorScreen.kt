@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,6 +48,19 @@ import kotlin.text.iterator
 fun CalculatorScreen(retroTheme: Boolean = false) {
     var expression by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
+
+    LaunchedEffect(expression) {
+        result = try {
+            if (expression.isNotEmpty() && hasOperator(expression) && expression.last() !in "+-x/")
+                evaluateExpression(expression)
+            else {
+                ""
+            }
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,15 +82,21 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
                 numberColor = if (retroTheme) RetroText else MaterialTheme.colorScheme.onBackground,
                 operatorColor = if (retroTheme) RetroOperator else MaterialTheme.colorScheme.primary
             )
-            Text(
-                text = result,
-                fontSize = 30.sp,
-                fontFamily = Lato,
-                fontWeight = FontWeight.Medium,
-                color = if (retroTheme) RetroResult else Color.Gray,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (result.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = result,
+                    fontSize = 30.sp,
+                    fontFamily = Lato,
+                    fontWeight = FontWeight.Medium,
+                    color = if (retroTheme) RetroResult else Color.Gray,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Spacer(modifier = Modifier.height(38.dp))
+            }
+
         }
 
         val buttons = listOf(
@@ -127,7 +145,10 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
                             backgroundColor = buttonColor
                         ) {
                             when (symbol) {
-                                "=" -> result = evaluateExpression(expression)
+                                "=" -> if (result.isNotEmpty()) {
+                                    expression = result
+                                    result = ""
+                                }
                                 "AC" -> { expression = ""
                                           result = ""
                                 }
@@ -276,4 +297,7 @@ fun autoResizeText(
             }
         )
     }
+}
+private fun hasOperator(expr: String): Boolean {
+    return expr.any { it in "+-x/%" }
 }
