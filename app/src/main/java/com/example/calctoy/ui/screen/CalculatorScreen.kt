@@ -3,18 +3,18 @@ package com.example.calctoy.ui.screen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.ui.layout.Layout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
@@ -30,6 +30,7 @@ import com.example.calctoy.ui.theme.RetroButton
 import com.example.calctoy.ui.theme.RetroButtonText
 import com.example.calctoy.ui.theme.RetroEqual
 import com.example.calctoy.ui.theme.RetroOperator
+import com.example.calctoy.ui.theme.RetroPad
 import com.example.calctoy.ui.theme.RetroResult
 import com.example.calctoy.ui.theme.RetroSpecial
 import com.example.calctoy.ui.theme.RetroText
@@ -37,10 +38,9 @@ import com.example.calctoy.ui.theme.acButton
 import com.example.calctoy.ui.theme.equalButton
 import com.example.calctoy.ui.theme.numberButton
 import com.example.calctoy.ui.theme.operatorButton
+import com.example.calctoy.ui.theme.pad
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.text.DecimalFormat
-import kotlin.math.exp
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.text.iterator
 
@@ -52,8 +52,7 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(if (retroTheme) RetroBackground else MaterialTheme.colorScheme.background)
-            .padding(16.dp),
+            .background(if (retroTheme) RetroBackground else MaterialTheme.colorScheme.background),
 
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -63,7 +62,7 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
                 .weight(1f)
                 .padding(8.dp),
             horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Bottom
+            verticalArrangement = Arrangement.Center
         ) {
             autoResizeText(
                 expression = expression,
@@ -91,7 +90,11 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
         )
 
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .background(if (retroTheme) RetroPad else MaterialTheme.colorScheme.pad,
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                )
+                .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             buttons.forEach { row ->
@@ -214,9 +217,9 @@ fun autoResizeText(
     modifier: Modifier = Modifier,
     numberColor: Color = Color.Black,
     operatorColor: Color = Color.DarkGray,
-    maxNumberFontSize: TextUnit = 60.sp,
+    maxNumberFontSize: TextUnit = 100.sp,
     minNumberFontSize: TextUnit = 20.sp,
-    maxOperatorFontSize: TextUnit = 40.sp,
+    maxOperatorFontSize: TextUnit = 65.sp,
     minOperatorFontSize: TextUnit = 10.sp
 ) {
     var numberFontSize by remember { mutableStateOf(maxNumberFontSize) }
@@ -241,14 +244,14 @@ fun autoResizeText(
                 val numberStyle = SpanStyle(
                     fontSize = animatedNumberFontSize.sp,
                     fontFamily = Lato,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     color = numberColor
                 )
                 val operatorStyle = SpanStyle(
                     fontSize = animatedOperatorFontSize.sp,
                     fontFamily = Lato,
-                    fontWeight = FontWeight.Bold,
-                    baselineShift = BaselineShift(0.5f),
+                    fontWeight = FontWeight.Medium,
+                    baselineShift = BaselineShift(1f),
                     color = operatorColor
                 )
                 for (ch in expression) {

@@ -57,6 +57,8 @@ val ColorScheme.operatorButton: Color
 
 val ColorScheme.numberButton: Color
     @Composable get() = if (isSystemInDarkTheme()) DarkNumberButton else LightNumberButton
+val ColorScheme.pad: Color
+    @Composable get() = if (isSystemInDarkTheme()) DarkModernPad else LightModernPad
 
 @Composable
 fun CalcToyTheme(
