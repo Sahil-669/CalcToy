@@ -15,51 +15,59 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
+    background = Color.Black,
+    surface = DarkModernPad,
+    onBackground = DarkResult,
+    primary = DarkNumberButton,
+    onPrimary = Color.Black,
+    secondary = DarkOperatorButton,
+    onSecondary = Color.Gray,
+    tertiary = DarkEqualButton,
+    onTertiary = Color.White,
+).copy(
+    scrim = DarkACButton
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    background = Color.White,
+    surface = LightModernPad,
+    onBackground = LightResult,
+    primary = LightNumberButton,
+    onPrimary = Color.Black,
+    secondary = LightOperatorButton,
+    onSecondary = Color.Gray,
+    tertiary = LightEqualButton,
+    onTertiary = Color.Black
+).copy(
+        scrim = LightACButton
 )
+
 
 private val RetroColorScheme = darkColorScheme(
-    primary = RetroButton,
-    secondary = RetroOperator,
-    tertiary = RetroEqual,
     background = RetroBackground,
-    surface = RetroBackground,
+    surface = RetroPad,
+    onBackground = RetroResult,
+    primary = RetroButton,
     onPrimary = RetroButtonText,
-    onSecondary = RetroButtonText,
+    secondary = RetroOperator,
+    onSecondary = Color.Gray,
+    tertiary = RetroEqual,
     onTertiary = Color.White
+).copy(
+    scrim = RetroSpecial,
 )
 
-val ColorScheme.acButton: Color
-    @Composable get() = if (isSystemInDarkTheme()) DarkACButton else LightACButton
+val ColorScheme.acButton get() = scrim
 
-val ColorScheme.equalButton: Color
-    @Composable get() = if (isSystemInDarkTheme()) DarkEqualButton else LightEqualButton
+val ColorScheme.equalButton get() = tertiary
 
-val ColorScheme.operatorButton: Color
-    @Composable get() = if (isSystemInDarkTheme()) DarkOperatorButton else LightOperatorButton
+val ColorScheme.operatorButton get() = secondary
 
-val ColorScheme.numberButton: Color
-    @Composable get() = if (isSystemInDarkTheme()) DarkNumberButton else LightNumberButton
-val ColorScheme.pad: Color
-    @Composable get() = if (isSystemInDarkTheme()) DarkModernPad else LightModernPad
+val ColorScheme.numberButton get() = primary
+val ColorScheme.pad get() = surface
+val ColorScheme.resultColor get() = onBackground
+val ColorScheme.expressionColor get() = onTertiary
+val ColorScheme.operatorTextColor get() = onSecondary
 
 @Composable
 fun CalcToyTheme(

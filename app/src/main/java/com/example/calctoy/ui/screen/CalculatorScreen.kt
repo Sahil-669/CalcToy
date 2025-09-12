@@ -3,16 +3,20 @@ package com.example.calctoy.ui.screen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -23,21 +27,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.calctoy.R
 import com.example.calctoy.ui.theme.Lato
-import com.example.calctoy.ui.theme.RetroBackground
-import com.example.calctoy.ui.theme.RetroButton
-import com.example.calctoy.ui.theme.RetroButtonText
-import com.example.calctoy.ui.theme.RetroEqual
-import com.example.calctoy.ui.theme.RetroOperator
-import com.example.calctoy.ui.theme.RetroPad
-import com.example.calctoy.ui.theme.RetroResult
-import com.example.calctoy.ui.theme.RetroSpecial
-import com.example.calctoy.ui.theme.RetroText
 import com.example.calctoy.ui.theme.acButton
 import com.example.calctoy.ui.theme.equalButton
+import com.example.calctoy.ui.theme.expressionColor
 import com.example.calctoy.ui.theme.numberButton
 import com.example.calctoy.ui.theme.operatorButton
+import com.example.calctoy.ui.theme.operatorTextColor
 import com.example.calctoy.ui.theme.pad
+import com.example.calctoy.ui.theme.resultColor
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.text.DecimalFormat
 import kotlin.math.min
@@ -45,7 +44,7 @@ import kotlin.text.iterator
 
 
 @Composable
-fun CalculatorScreen(retroTheme: Boolean = false) {
+fun CalculatorScreen(toggleTheme: () -> Unit) {
     var expression by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
 
@@ -56,7 +55,7 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
             else {
                 ""
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             ""
         }
     }
@@ -64,10 +63,34 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(if (retroTheme) RetroBackground else MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background),
 
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 40.dp, start = 16.dp, end = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.history),
+                contentDescription = "",
+                modifier = Modifier
+                    .size(24.dp),
+                tint = MaterialTheme.colorScheme.onTertiary
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.theme),
+                contentDescription = "",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { toggleTheme() },
+                tint = MaterialTheme.colorScheme.onTertiary
+            )
+
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -79,8 +102,8 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
             autoResizeText(
                     expression = expression,
                     modifier = Modifier.fillMaxWidth(),
-                    numberColor = if (retroTheme) RetroText else MaterialTheme.colorScheme.onBackground,
-                    operatorColor = if (retroTheme) RetroOperator else MaterialTheme.colorScheme.primary
+                    numberColor = MaterialTheme.colorScheme.expressionColor,
+                    operatorColor = MaterialTheme.colorScheme.operatorTextColor
             )
             Box (
                 modifier = Modifier
@@ -93,7 +116,7 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
                         fontSize = 30.sp,
                         fontFamily = Lato,
                         fontWeight = FontWeight.Medium,
-                        color = if (retroTheme) RetroResult else Color.Gray,
+                        color = MaterialTheme.colorScheme.resultColor,
                         textAlign = TextAlign.End
                 )
             }
@@ -109,8 +132,8 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
 
         Column(
             modifier = Modifier.fillMaxWidth()
-                .background(if (retroTheme) RetroPad else MaterialTheme.colorScheme.pad,
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                .background(MaterialTheme.colorScheme.pad,
+                    shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp)
                 )
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -121,21 +144,13 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     row.forEach { symbol ->
-                         val buttonColor = if (retroTheme) {
-                             when (symbol) {
-                                 "AC" -> RetroSpecial
-                                 "=" -> RetroEqual
-                                 "+", "-", "x", "/", "%", "(  )" -> RetroOperator
-                                 else -> RetroButton
-                             }
-                         } else {
-                            when (symbol) {
-                            "AC" -> MaterialTheme.colorScheme.acButton
-                            "=" -> MaterialTheme.colorScheme.equalButton
-                            "+", "-", "x", "/", "%", "(  )" -> MaterialTheme.colorScheme.operatorButton
-                            else -> MaterialTheme.colorScheme.numberButton
+                         val buttonColor = when (symbol) {
+                             "AC" -> MaterialTheme.colorScheme.acButton
+                             "=" -> MaterialTheme.colorScheme.equalButton
+                             "+", "-", "x", "/","%","(  )" -> MaterialTheme.colorScheme.operatorButton
+                             else -> MaterialTheme.colorScheme.numberButton
                         }
-                         }
+
                         CalculatorButton(
                             symbol = symbol,
                             modifier = Modifier
@@ -172,7 +187,6 @@ fun CalculatorScreen(retroTheme: Boolean = false) {
 @Composable
 fun CalculatorButton(
     symbol: String,
-    retroTheme: Boolean = false,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
@@ -190,7 +204,7 @@ fun CalculatorButton(
             Text(text = symbol,
                 fontFamily = Lato,
                 fontSize = 30.sp,
-                color = if (retroTheme) RetroButtonText else Color.Black,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.Normal)
         }
     }
@@ -298,6 +312,4 @@ fun autoResizeText(
         )
     }
 }
-private fun hasOperator(expr: String): Boolean {
-    return expr.any { it in "+-x/%" }
-}
+private fun hasOperator(expr: String) = expr.any {it in "+-x/"}
