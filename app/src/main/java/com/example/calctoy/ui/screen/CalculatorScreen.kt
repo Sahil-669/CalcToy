@@ -1,18 +1,22 @@
 package com.example.calctoy.ui.screen
 
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +41,7 @@ import com.example.calctoy.ui.theme.operatorButton
 import com.example.calctoy.ui.theme.operatorTextColor
 import com.example.calctoy.ui.theme.pad
 import com.example.calctoy.ui.theme.resultColor
+import com.example.calctoy.viewmodel.CalculationViewModel
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.text.DecimalFormat
 import kotlin.math.min
@@ -44,9 +49,10 @@ import kotlin.text.iterator
 
 
 @Composable
-fun CalculatorScreen(toggleTheme: () -> Unit) {
+fun CalculatorScreen(toggleTheme: () -> Unit, viewModel: CalculationViewModel) {
     var expression by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
+    var showHistory by remember { mutableStateOf(false) }
 
     LaunchedEffect(expression) {
         result = try {
@@ -59,15 +65,17 @@ fun CalculatorScreen(toggleTheme: () -> Unit) {
             ""
         }
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
 
-        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Row (
+        AnimatedVisibility( visible = showHistory ) {
+            HistoryPanel(viewModel = viewModel)
+        }
+
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 40.dp, start = 16.dp, end = 16.dp),
@@ -78,8 +86,10 @@ fun CalculatorScreen(toggleTheme: () -> Unit) {
                 painter = painterResource(id = R.drawable.history),
                 contentDescription = "",
                 modifier = Modifier
-                    .size(24.dp),
+                    .size(24.dp)
+                    .clickable { showHistory = !showHistory },
                 tint = MaterialTheme.colorScheme.onTertiary
+
             )
             Icon(
                 painter = painterResource(id = R.drawable.theme),
@@ -91,90 +101,107 @@ fun CalculatorScreen(toggleTheme: () -> Unit) {
             )
 
         }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(8.dp),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Center
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            autoResizeText(
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .weight(.3f),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
+                AutoResizeText(
                     expression = expression,
                     modifier = Modifier.fillMaxWidth(),
                     numberColor = MaterialTheme.colorScheme.expressionColor,
                     operatorColor = MaterialTheme.colorScheme.operatorTextColor
-            )
-            Box (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(38.dp),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                Text(
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(38.dp),
+                    contentAlignment = Alignment.TopEnd
+                ) {
+                    Text(
                         text = result,
                         fontSize = 30.sp,
                         fontFamily = Lato,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.resultColor,
                         textAlign = TextAlign.End
-                )
+                    )
+                }
             }
-        }
 
-        val buttons = listOf(
-            listOf("AC", "(  )", "%", "/"),
-            listOf("7", "8", "9", "x"),
-            listOf("4", "5", "6", "-"),
-            listOf("1", "2", "3", "+"),
-            listOf("0", ".", "⌫", "=")
-        )
+            val buttons = listOf(
+                listOf("AC", "(  )", "%", "/"),
+                listOf("7", "8", "9", "x"),
+                listOf("4", "5", "6", "-"),
+                listOf("1", "2", "3", "+"),
+                listOf("0", ".", "⌫", "=")
+            )
 
-        Column(
-            modifier = Modifier.fillMaxWidth()
-                .background(MaterialTheme.colorScheme.pad,
-                    shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp)
-                )
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            buttons.forEach { row ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    row.forEach { symbol ->
-                         val buttonColor = when (symbol) {
-                             "AC" -> MaterialTheme.colorScheme.acButton
-                             "=" -> MaterialTheme.colorScheme.equalButton
-                             "+", "-", "x", "/","%","(  )" -> MaterialTheme.colorScheme.operatorButton
-                             else -> MaterialTheme.colorScheme.numberButton
-                        }
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .weight(.7f)
+                    .background(
+                        MaterialTheme.colorScheme.pad,
+                        shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp)
+                    )
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                buttons.forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        row.forEach { symbol ->
+                            val buttonColor = when (symbol) {
+                                "AC" -> MaterialTheme.colorScheme.acButton
+                                "=" -> MaterialTheme.colorScheme.equalButton
+                                "+", "-", "x", "/", "%", "(  )" -> MaterialTheme.colorScheme.operatorButton
+                                else -> MaterialTheme.colorScheme.numberButton
+                            }
 
-                        CalculatorButton(
-                            symbol = symbol,
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
-                                .fillMaxHeight(),
-                            backgroundColor = buttonColor
-                        ) {
-                            when (symbol) {
-                                "=" -> if (result.isNotEmpty()) {
-                                    expression = result
-                                    result = ""
+                            CalculatorButton(
+                                symbol = symbol,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .then(if (!showHistory) Modifier.aspectRatio(1f)
+                                    else Modifier.fillMaxHeight()),
+                                backgroundColor = buttonColor
+                            ) {
+                                when (symbol) {
+                                    "=" -> if (result.isNotEmpty()) {
+                                        viewModel.addCalculation(expression, result)
+                                        expression = result
+                                        result = ""
+                                    }
+
+                                    "AC" -> {
+                                        expression = ""
+                                        result = ""
+                                    }
+
+                                    "⌫" -> {
+                                        if (expression.isNotEmpty())
+                                            expression = expression.dropLast(1)
+                                    }
+
+                                    "( )" -> expression = handleParentheses(expression)
+                                    else -> {
+                                        expression += symbol
+                                    }
                                 }
-                                "AC" -> { expression = ""
-                                          result = ""
-                                }
-                                "⌫" -> {
-                                    if (expression.isNotEmpty())
-                                    expression = expression.dropLast(1)
-                                }
-
-                                "( )" -> expression = handleParentheses(expression)
-                                else -> {
-                                    expression += symbol}
                             }
                         }
                     }
@@ -186,9 +213,9 @@ fun CalculatorScreen(toggleTheme: () -> Unit) {
 
 @Composable
 fun CalculatorButton(
+    modifier: Modifier = Modifier,
     symbol: String,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
-    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Box(
@@ -200,7 +227,7 @@ fun CalculatorButton(
             modifier = Modifier.fillMaxSize(),
             shape = CircleShape,
             containerColor = backgroundColor
-            ) {
+        ) {
             Text(text = symbol,
                 fontFamily = Lato,
                 fontSize = 30.sp,
@@ -222,7 +249,7 @@ private fun evaluateExpression(expr: String): String {
         val value = ExpressionBuilder(clean).build().evaluate()
 
         formatResult(value)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         "Error"
     }
 }
@@ -247,7 +274,7 @@ private fun handleParentheses(expr: String): String {
     return "$expr("
 }
 @Composable
-fun autoResizeText(
+fun AutoResizeText(
     expression: String,
     modifier: Modifier = Modifier,
     numberColor: Color = Color.Black,
@@ -313,3 +340,45 @@ fun autoResizeText(
     }
 }
 private fun hasOperator(expr: String) = expr.any {it in "+-x/"}
+
+@Composable
+fun HistoryPanel(viewModel: CalculationViewModel) {
+    val history by viewModel.history.collectAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .background(MaterialTheme.colorScheme.pad)
+            .padding(top = 40.dp, start = 16.dp, end = 16.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.delete),
+            contentDescription = "",
+            modifier = Modifier.align(Alignment.End)
+                .clickable {viewModel.clearHistory()}
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            items(history) { calc ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.selectCalculation(calc) },
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(calc.expression, fontFamily = Lato)
+                        Text(calc.result, fontFamily = Lato)
+                    }
+                    HorizontalDivider(thickness = 1.dp)
+            }
+        }
+    }
+}
+
