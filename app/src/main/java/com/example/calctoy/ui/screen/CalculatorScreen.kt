@@ -53,6 +53,13 @@ fun CalculatorScreen(toggleTheme: () -> Unit, viewModel: CalculationViewModel) {
     var expression by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
     var showHistory by remember { mutableStateOf(false) }
+    val selected by viewModel.selected.collectAsState()
+
+    LaunchedEffect(selected) {
+        selected?.let {
+            expression = it.result
+        }
+    }
 
     LaunchedEffect(expression) {
         result = try {
