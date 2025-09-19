@@ -58,6 +58,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.navigation:navigation-compose:2.9.4")
+    testImplementation("junit:junit:4.13.2")
 
     implementation("androidx.room:room-runtime:2.8.0")
     kapt("androidx.room:room-compiler:2.8.0")

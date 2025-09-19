@@ -1,7 +1,7 @@
 package com.example.calctoy.ui.screen
 
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,7 +63,7 @@ fun CalculatorScreen(toggleTheme: () -> Unit, viewModel: CalculationViewModel) {
 
     LaunchedEffect(expression) {
         result = try {
-            if (expression.isNotEmpty() && hasOperator(expression) && expression.last() !in "+-x/")
+            if (expression.isNotEmpty() && hasOperator(expression) && expression.last() !in "+-x÷")
                 evaluateExpression(expression)
             else {
                 ""
@@ -78,8 +78,9 @@ fun CalculatorScreen(toggleTheme: () -> Unit, viewModel: CalculationViewModel) {
             .background(MaterialTheme.colorScheme.background)
 
     ) {
-        AnimatedVisibility( visible = showHistory ) {
-            HistoryPanel(viewModel = viewModel)
+        AnimatedContent (showHistory ) { visible ->
+            if (visible)
+                HistoryPanel(viewModel)
         }
 
         Row(
@@ -148,7 +149,7 @@ fun CalculatorScreen(toggleTheme: () -> Unit, viewModel: CalculationViewModel) {
             }
 
             val buttons = listOf(
-                listOf("AC", "(  )", "%", "/"),
+                listOf("AC", "(  )", "%", "÷"),
                 listOf("7", "8", "9", "x"),
                 listOf("4", "5", "6", "-"),
                 listOf("1", "2", "3", "+"),
@@ -175,7 +176,7 @@ fun CalculatorScreen(toggleTheme: () -> Unit, viewModel: CalculationViewModel) {
                             val buttonColor = when (symbol) {
                                 "AC" -> MaterialTheme.colorScheme.acButton
                                 "=" -> MaterialTheme.colorScheme.equalButton
-                                "+", "-", "x", "/", "%", "(  )" -> MaterialTheme.colorScheme.operatorButton
+                                "+", "-", "x", "÷", "%", "(  )" -> MaterialTheme.colorScheme.operatorButton
                                 else -> MaterialTheme.colorScheme.numberButton
                             }
 
@@ -206,7 +207,14 @@ fun CalculatorScreen(toggleTheme: () -> Unit, viewModel: CalculationViewModel) {
 
                                     "( )" -> expression = handleParentheses(expression)
                                     else -> {
-                                        expression += symbol
+                                        if (symbol in listOf("+", "-", "x", "÷")) {
+                                            if (expression.isNotEmpty() && expression.last() in "+-x÷")
+                                                expression = expression.dropLast(1) + symbol
+                                            else
+                                                expression += symbol
+                                        } else {
+                                            expression += symbol
+                                        }
                                     }
                                 }
                             }
@@ -244,20 +252,23 @@ fun CalculatorButton(
     }
 }
 
-private fun evaluateExpression(expr: String): String {
+ fun evaluateExpression(expr: String): String {
+    if (expr.isBlank())
+        return "Enter Expression"
     return try {
         var clean = expr
             .replace("x", "*")
+            .replace("÷", "/")
 
         clean = clean.replace(Regex("""(\d+(?:\.\d+)?)%""")) { m ->
             "(${m.groupValues[1]}/100)"
         }
-
         val value = ExpressionBuilder(clean).build().evaluate()
-
         formatResult(value)
-    } catch (_: Exception) {
-        "Error"
+
+    }
+    catch (_: ArithmeticException){
+        "Can't divide by 0"
     }
 }
 
@@ -273,7 +284,7 @@ private fun formatResult(value: Double): String {
 private fun handleParentheses(expr: String): String {
     val openCount = expr.count { it == '(' }
     val closeCount = expr.count { it == ')' }
-    if (expr.isEmpty() || expr.last() in "+-*/(" )
+    if (expr.isEmpty() || expr.last() in "+-x÷(" )
         return "$expr("
     if (openCount > closeCount)
         return "$expr)"
@@ -324,7 +335,7 @@ fun AutoResizeText(
                     color = operatorColor
                 )
                 for (ch in expression) {
-                    if (ch in "+-x/") {
+                    if (ch in "+-x÷") {
                         withStyle(operatorStyle) { append(ch) }
                     } else {
                         withStyle(numberStyle) { append(ch) }
@@ -346,7 +357,7 @@ fun AutoResizeText(
         )
     }
 }
-private fun hasOperator(expr: String) = expr.any {it in "+-x/"}
+private fun hasOperator(expr: String) = expr.any {it in "+-x÷%"}
 
 @Composable
 fun HistoryPanel(viewModel: CalculationViewModel) {
