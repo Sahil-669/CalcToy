@@ -27,7 +27,7 @@ Supports basic arithmetic operations, history management, dark/light themes, and
 - Android Studio **Koala+** (or newer)  
 - JDK 17+  
 - Gradle 8+
-- 
+  
 ---
 
 ## 👨‍💻 Author
